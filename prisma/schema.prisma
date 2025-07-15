@@ -1,0 +1,174 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique
+  password String
+  role     String
+
+  historial         UserHistory[]
+  cursoDocentes     CursoDocente[]        // RELACIÓN N:M con cursos como docente
+  cursosCoordinados Course[]              @relation("CursoCoordinador") // RELACIÓN 1:N como coordinador
+}
+
+model UserHistory {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  changeDate    DateTime @default(now())
+  changedBy     String
+  changedByRole String
+  description   String
+}
+
+model Course {
+  id            Int     @id @default(autoincrement())
+  code          String  @unique
+  name          String
+  credits       Int
+  type          String
+  area          String?
+  weeks         Int?
+  theoryHours   Int?
+  practiceHours Int?
+  labHours      Int?
+  semester      String?
+  cycle         String?
+  modality      String?
+  group         String?
+  sumilla       String? @db.VarChar(2000)
+
+  cursoDocentes   CursoDocente[]             // RELACIÓN N:M con docentes
+  coordinador     User?                      @relation("CursoCoordinador", fields: [coordinadorId], references: [id])
+  coordinadorId   Int?
+
+  syllabus        Syllabus?
+
+  prerequisites   Prerequisite[] @relation("coursePrerequisites")
+  requiredFor     Prerequisite[] @relation("prerequisiteCourses")
+
+  competencias    Competencia[]
+  logros          Logro[]
+  capacidades     Capacidad[]
+  evaluacion      Evaluacion?
+  bibliografias   Bibliografia[]
+  matriz          MatrizEvaluacion[]
+}
+
+model CursoDocente {
+  course   Course @relation(fields: [courseId], references: [id])
+  courseId Int
+
+  user     User   @relation(fields: [userId], references: [id])
+  userId   Int
+
+  @@id([courseId, userId])
+}
+
+model Syllabus {
+  id        Int      @id @default(autoincrement())
+  courseId  Int      @unique
+  createdAt DateTime @default(now())
+  pdfUrl    String
+
+  course Course @relation(fields: [courseId], references: [id])
+}
+
+model Prerequisite {
+  id             Int @id @default(autoincrement())
+  courseId       Int
+  prerequisiteId Int
+
+  course       Course @relation("coursePrerequisites", fields: [courseId], references: [id])
+  prerequisite Course @relation("prerequisiteCourses", fields: [prerequisiteId], references: [id])
+
+  @@unique([courseId, prerequisiteId])
+}
+
+model Competencia {
+  id          Int    @id @default(autoincrement())
+  codigo      String @db.VarChar(7)
+  descripcion String @db.VarChar(500)
+  tipo        String
+  nivel       String
+  cursoId     Int
+  curso       Course @relation(fields: [cursoId], references: [id])
+}
+
+model Logro {
+  id          Int    @id @default(autoincrement())
+  codigo      String @db.VarChar(10)
+  descripcion String @db.VarChar(500)
+  tipo        String @db.VarChar(100)
+  nivel       String @db.VarChar(100)
+  cursoId     Int
+  curso       Course @relation(fields: [cursoId], references: [id])
+}
+
+model Capacidad {
+  id             Int                     @id @default(autoincrement())
+  nombre         String                  @db.VarChar(100)
+  descripcion    String                  @db.VarChar(500)
+  cursoId        Int
+  curso          Course                  @relation(fields: [cursoId], references: [id])
+  programaciones ProgramacionContenido[]
+}
+
+model ProgramacionContenido {
+  id          Int    @id @default(autoincrement())
+  logroUnidad String @db.VarChar(500)
+  semana      String @db.VarChar(2)
+  contenido   String @db.VarChar(500)
+  actividades String @db.VarChar(1000)
+  recursos    String @db.VarChar(500)
+  estrategias String @db.VarChar(500)
+
+  capacidadId Int
+  capacidad   Capacidad @relation(fields: [capacidadId], references: [id])
+}
+
+model Evaluacion {
+  id         Int    @id @default(autoincrement())
+  estrategia String @db.VarChar(2000)
+  evaluacion String @db.VarChar(2000)
+  formula    String @db.VarChar(500)
+  notas      Nota[]
+
+  courseId Int    @unique
+  course   Course @relation(fields: [courseId], references: [id])
+}
+
+model Nota {
+  id           Int        @id @default(autoincrement())
+  texto        String     @db.VarChar(500)
+  evaluacionId Int
+  evaluacion   Evaluacion @relation(fields: [evaluacionId], references: [id])
+}
+
+model MatrizEvaluacion {
+  id          Int    @id @default(autoincrement())
+  unidad      String @db.VarChar(100)
+  criterio    String @db.VarChar(1000)
+  desempenio  String @db.VarChar(1000)
+  producto    String @db.VarChar(500)
+  instrumento String @db.VarChar(100)
+  courseId    Int
+  course      Course @relation(fields: [courseId], references: [id])
+}
+
+model Bibliografia {
+  id       Int    @id @default(autoincrement())
+  texto    String @db.VarChar(1000)
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id])
+}
