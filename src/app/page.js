@@ -37,7 +37,7 @@ export default function HomePage() {
             fontWeight: 'bold',
           }}
         >
-          Bienvenido al Sistema de Gestión de Syllabus - Inkulye
+          Bienvenido al Sistema de Gestión de Syllabus - Inkluye
         </h1>
 
         <p
