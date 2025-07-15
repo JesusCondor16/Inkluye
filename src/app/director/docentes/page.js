@@ -19,9 +19,7 @@ export default function GestionDocentesPage() {
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('/api/users?roles=DOCENTE,COORDINADOR', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {
@@ -55,9 +53,7 @@ export default function GestionDocentesPage() {
       const token = localStorage.getItem('token');
       const res = await fetch(`/api/users/${id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {
@@ -67,7 +63,7 @@ export default function GestionDocentesPage() {
         return;
       }
 
-      setMensaje('Docente eliminado correctamente.');
+      setMensaje('✅ Docente eliminado correctamente.');
       cargarDocentes();
       setTimeout(() => setMensaje(''), 5000);
     } catch (error) {
@@ -87,16 +83,20 @@ export default function GestionDocentesPage() {
   };
 
   return (
-    <div className="d-flex" role="main" aria-label="Gestión de docentes académicos por el director">
+    <div
+      className="d-flex bg-light text-dark"
+      role="main"
+      aria-label="Gestión de docentes académicos por el director"
+    >
       <Sidebar />
 
-      <div className="container mt-4 mb-5" style={{ maxWidth: '100%' }}>
+      <div className="container mt-4 mb-5">
         <header
           className="d-flex justify-content-between align-items-center mb-4"
           aria-labelledby="titulo-gestion-docentes"
         >
-          <h1 className="h3 text-primary" tabIndex={0} id="titulo-gestion-docentes">
-            Gestión de Docentes
+          <h1 id="titulo-gestion-docentes" className="h3 text-primary fw-bold" tabIndex={0}>
+            👩‍🏫 Gestión de Docentes
           </h1>
           <button
             className="btn btn-primary fw-bold"
@@ -105,6 +105,13 @@ export default function GestionDocentesPage() {
               setMostrarAgregar(true);
             }}
             aria-label="Agregar nuevo docente"
+            onFocus={(e) => {
+              e.currentTarget.style.outline = '3px solid #000';
+              e.currentTarget.style.outlineOffset = '2px';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.outline = 'none';
+            }}
           >
             + Añadir Docente
           </button>
@@ -122,14 +129,17 @@ export default function GestionDocentesPage() {
         )}
 
         <div
-          className="table-responsive"
+          className="table-responsive shadow-sm"
           role="region"
           aria-labelledby="tabla-docentes"
         >
           <table
-            className="table table-bordered table-hover"
-            aria-label="Tabla de docentes registrados"
+            className="table table-bordered table-hover align-middle"
+            aria-describedby="tabla-docentes"
           >
+            <caption id="tabla-docentes" className="visually-hidden">
+              Lista de docentes con acciones de edición, eliminación e historial.
+            </caption>
             <thead className="table-light">
               <tr>
                 <th scope="col">#</th>
@@ -157,7 +167,7 @@ export default function GestionDocentesPage() {
                       <div
                         className="d-flex flex-wrap gap-2"
                         role="group"
-                        aria-label={`Acciones para el docente ${docente.name}`}
+                        aria-label={`Acciones disponibles para el docente ${docente.name}`}
                       >
                         <button
                           className="btn btn-outline-primary btn-sm"

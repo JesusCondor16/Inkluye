@@ -30,7 +30,7 @@ export async function GET(_req, context) {
       return NextResponse.json({ error: 'Curso no encontrado' }, { status: 404 });
     }
 
-    // Extraemos docentes desde cursoDocentes
+    // Extraer docentes
     const docentes = curso.cursoDocentes.map((cd) => cd.user);
 
     return NextResponse.json({
@@ -127,13 +127,40 @@ export async function DELETE(req, context) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
 
+    // 🔥 Borrar todo lo relacionado al curso
     await prisma.cursoDocente.deleteMany({ where: { courseId: id } });
     await prisma.prerequisite.deleteMany({ where: { courseId: id } });
+    await prisma.prerequisite.deleteMany({ where: { prerequisiteId: id } });
+    await prisma.syllabus.deleteMany({ where: { courseId: id } });
+
+    await prisma.evaluacionNota.deleteMany({
+      where: { evaluacion: { courseId: id } }
+    });
+
+    await prisma.evaluacion.deleteMany({ where: { courseId: id } });
+    await prisma.logros.deleteMany({ where: { courseId: id } });
+    await prisma.capacidadesProgramaciones.deleteMany({
+      where: { capacidad: { courseId: id } }
+    });
+
+    await prisma.capacidades.deleteMany({ where: { courseId: id } });
+    await prisma.matriz.deleteMany({ where: { courseId: id } });
+    await prisma.bibliografias.deleteMany({ where: { courseId: id } });
+    await prisma.competencias.deleteMany({ where: { courseId: id } });
+
+    // Finalmente elimina el curso
     await prisma.course.delete({ where: { id } });
 
     return NextResponse.json({ message: 'Curso eliminado correctamente' });
   } catch (err) {
     console.error('Error al eliminar curso:', err);
+
+    if (err.code === 'P2003') {
+      return NextResponse.json({
+        error: 'Este curso está relacionado con otros registros y no puede ser eliminado.',
+      }, { status: 400 });
+    }
+
     return NextResponse.json({ error: 'Error al eliminar el curso' }, { status: 500 });
   }
 }

@@ -14,7 +14,7 @@ export default function MisCursosPage() {
     const fetchCursos = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        setError('No se encontró el token de autenticación.');
+        setError('⚠️ No se encontró el token de autenticación.');
         setLoading(false);
         return;
       }
@@ -35,7 +35,7 @@ export default function MisCursosPage() {
         setCursos(cursosData);
       } catch (err) {
         console.error('Error al cargar cursos del coordinador:', err);
-        setError(err.message);
+        setError(`⚠️ ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -50,20 +50,20 @@ export default function MisCursosPage() {
 
   return (
     <div
-      className="d-flex"
+      className="d-flex bg-light text-dark"
       role="main"
-      aria-label="Vista principal con la lista de cursos coordinados"
-      style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}
+      aria-label="Vista principal de cursos coordinados"
+      style={{ minHeight: '100vh' }}
     >
       <Sidebar />
 
       <main className="container mt-4 mb-5" aria-labelledby="titulo-mis-cursos">
         <h1
           id="titulo-mis-cursos"
-          className="h3 mb-4 text-dark fw-bold"
+          className="display-5 fw-bold text-primary mb-4"
           tabIndex={0}
         >
-          Mis Cursos Coordinados
+          🎓 Mis Cursos Coordinados
         </h1>
 
         {loading ? (
@@ -71,16 +71,16 @@ export default function MisCursosPage() {
             role="status"
             aria-live="polite"
             tabIndex={0}
-            className="text-dark fw-bold"
+            className="text-info fw-semibold"
           >
-            Cargando cursos...
+            ⏳ Cargando cursos...
           </div>
         ) : error ? (
           <div
-            className="alert alert-danger"
+            className="alert alert-danger fw-semibold"
             role="alert"
             tabIndex={0}
-            aria-label="Mensaje de error al cargar los cursos"
+            aria-label="Mensaje de error"
           >
             {error}
           </div>
@@ -88,9 +88,9 @@ export default function MisCursosPage() {
           <p
             aria-live="polite"
             tabIndex={0}
-            className="text-muted"
+            className="text-muted fw-semibold"
           >
-            No tienes cursos asignados por el momento.
+            📭 No tienes cursos asignados por el momento.
           </p>
         ) : (
           <div
@@ -99,19 +99,19 @@ export default function MisCursosPage() {
             aria-labelledby="tabla-cursos-titulo"
           >
             <table
-              className="table table-bordered table-striped align-middle"
+              className="table table-bordered table-hover table-striped align-middle shadow-sm"
               aria-describedby="tabla-cursos-titulo"
             >
               <caption id="tabla-cursos-titulo" className="visually-hidden">
-                Tabla de cursos coordinados con botón para generar syllabus.
+                Lista de cursos coordinados con opción para generar syllabus
               </caption>
-              <thead style={{ backgroundColor: '#f8f9fa' }}>
+              <thead className="table-primary">
                 <tr>
                   <th scope="col">Código</th>
                   <th scope="col">Nombre</th>
                   <th scope="col">Semestre</th>
                   <th scope="col">Créditos</th>
-                  <th scope="col">Generar Syllabus</th>
+                  <th scope="col">Acción</th>
                 </tr>
               </thead>
               <tbody>
@@ -123,25 +123,23 @@ export default function MisCursosPage() {
                     <td tabIndex={0}>{curso.credits}</td>
                     <td>
                       <button
+                        type="button"
                         className="btn btn-success btn-sm fw-bold"
                         onClick={() => handleGenerarSyllabus(curso.id)}
                         aria-label={`Generar syllabus para el curso ${curso.name}`}
                         style={{
-                          backgroundColor: '#157347',
-                          color: '#ffffff',
-                          border: 'none',
-                          padding: '6px 12px',
-                          borderRadius: '4px',
+                          borderRadius: '0.375rem',
+                          transition: 'box-shadow 0.2s ease-in-out',
                         }}
                         onFocus={(e) => {
-                          e.currentTarget.style.outline = '2px solid #000';
+                          e.currentTarget.style.outline = '3px solid #000';
                           e.currentTarget.style.outlineOffset = '2px';
                         }}
                         onBlur={(e) => {
                           e.currentTarget.style.outline = 'none';
                         }}
                       >
-                        Generar
+                        📝 Generar
                       </button>
                     </td>
                   </tr>

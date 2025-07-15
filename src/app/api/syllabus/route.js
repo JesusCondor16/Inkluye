@@ -9,13 +9,11 @@ export async function GET(req) {
     const codigo = searchParams.get('codigo')?.trim();
     const nombre = searchParams.get('nombre')?.trim();
     const ciclo = searchParams.get('ciclo')?.trim();
-    const plan = searchParams.get('plan')?.trim();
 
     const filtros = [];
     if (codigo) filtros.push({ code: { contains: codigo } });
     if (nombre) filtros.push({ name: { contains: nombre } });
     if (ciclo) filtros.push({ cycle: { contains: ciclo } });
-    if (plan) filtros.push({ group: { contains: plan } });
 
     const cursos = await prisma.course.findMany({
       where: filtros.length > 0 ? { AND: filtros } : {},
@@ -30,7 +28,6 @@ export async function GET(req) {
       codigo: c.code,
       nombre: c.name,
       ciclo: c.cycle ?? '—',
-      planEstudios: c.group ?? '—',
       creditos: c.credits,
       pdfUrl: c.syllabus?.pdfUrl ?? null,
     }));
