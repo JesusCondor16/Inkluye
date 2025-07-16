@@ -14,9 +14,9 @@ async function main() {
   const user = await prisma.user.create({
     data: {
       name: 'Jesus',
-      email: 'jesuscondor@ejemplo.com',
+      email: 'mario@ejemplo.com',
       password: passwordHash,
-      role: 'ESTUDIANTE', // Puedes cambiarlo a COORDINADOR, DOCENTE, etc.
+      role: 'DOCENTE', // Puedes cambiarlo a COORDINADOR, DOCENTE, etc.
     },
   });
 
