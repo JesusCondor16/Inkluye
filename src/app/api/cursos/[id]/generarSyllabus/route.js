@@ -6,8 +6,6 @@ import { translateCurso } from '@/lib/translateCurso';
 import { translations } from '@/lib/translations';
 
 import chromium from 'chrome-aws-lambda';
-import fs from 'fs/promises';
-import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,19 +53,16 @@ export async function GET(req, context) {
 
     const html = renderSyllabusHTML(curso, t, lang);
 
-    // Inicializa Puppeteer con configuración compatible con Vercel (chrome-aws-lambda)
     const browser = await chromium.puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath || undefined,
+      executablePath: await chromium.executablePath,
       headless: chromium.headless,
     });
 
     const page = await browser.newPage();
-
     await page.setContent(html, {
       waitUntil: 'networkidle0',
-      baseURL: 'http://localhost:3000',
     });
 
     const pdfBuffer = await page.pdf({
@@ -82,38 +77,18 @@ export async function GET(req, context) {
       },
       headerTemplate: `<div></div>`,
       footerTemplate: `
-        <div style="
-          font-size: 10px;
-          width: 100%;
-          text-align: right;
-          padding-right: 20px;
-          color: #444;
-        ">
+        <div style="font-size:10px;width:100%;text-align:right;padding-right:20px;color:#444;">
           <span class="pageNumber"></span>
-        </div>
-      `,
+        </div>`,
     });
 
     await browser.close();
-
-    const filename = `syllabus-${curso.code}-${lang}.pdf`;
-    const filePath = path.join(process.cwd(), 'public', 'syllabus', filename);
-    const pdfUrl = `/syllabus/${filename}`;
-
-    await fs.mkdir(path.dirname(filePath), { recursive: true });
-    await fs.writeFile(filePath, pdfBuffer);
-
-    await prisma.syllabus.upsert({
-      where: { courseId: curso.id },
-      update: { pdfUrl },
-      create: { courseId: curso.id, pdfUrl },
-    });
 
     return new Response(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="${filename}"`,
+        'Content-Disposition': `inline; filename="syllabus-${curso.code}-${lang}.pdf"`,
       },
     });
   } catch (error) {
