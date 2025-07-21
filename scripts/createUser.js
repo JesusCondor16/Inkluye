@@ -13,10 +13,10 @@ async function main() {
   // Crear usuario de prueba
   const user = await prisma.user.create({
     data: {
-      name: 'Jesus',
-      email: 'mario@ejemplo.com',
+      name: 'Jesus Condor',
+      email: 'jesus.condor3@ejemplo.com',
       password: passwordHash,
-      role: 'DOCENTE', // Puedes cambiarlo a COORDINADOR, DOCENTE, etc.
+      role: 'ESTUDIANTE', // Puedes cambiarlo a COORDINADOR, DOCENTE, etc.
     },
   });
 

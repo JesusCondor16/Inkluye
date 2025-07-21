@@ -138,7 +138,7 @@ export default function LoginPage() {
           </div>
 
           {/* Enlace para recuperar contraseña */}
-          <div className="mb-3 text-end">
+          {/*<div className="mb-3 text-end">
             <Link
               href="/users/reset-password"
               className="text-decoration-none text-primary"
@@ -146,7 +146,7 @@ export default function LoginPage() {
             >
               ¿Olvidaste tu contraseña?
             </Link>
-          </div>
+          </div>*/}
 
           <div className="d-grid mt-2">
             <button

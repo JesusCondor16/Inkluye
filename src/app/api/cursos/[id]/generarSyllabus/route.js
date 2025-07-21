@@ -1,12 +1,12 @@
+// src/app/api/cursos/[id]/generarSyllabus/route.js (o .ts si usas TypeScript)
+
 import { prisma } from '@/lib/prisma';
 import { renderSyllabusHTML } from './syllabusTemplate';
 import { translateCurso } from '@/lib/translateCurso';
 import { translations } from '@/lib/translations';
-import puppeteer from 'puppeteer';
+import chromium from 'chrome-aws-lambda'; // CAMBIO
 import fs from 'fs/promises';
 import path from 'path';
-
-
 
 export async function GET(req, context) {
   const { searchParams } = new URL(req.url);
@@ -19,7 +19,6 @@ export async function GET(req, context) {
   }
 
   const t = translations[lang] || translations['es'];
-  
 
   try {
     let curso = await prisma.course.findUnique({
@@ -35,12 +34,8 @@ export async function GET(req, context) {
         prerequisites: { include: { prerequisite: true } },
         syllabus: true,
         capacidades: {
-          include: {
-            programaciones: true,
-          },
-          orderBy: {
-            id: 'asc',
-          },
+          include: { programaciones: true },
+          orderBy: { id: 'asc' },
         },
       },
     });
@@ -57,9 +52,12 @@ export async function GET(req, context) {
 
     const html = renderSyllabusHTML(curso, t, lang);
 
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox'],
+    // ✅ LAUNCH con chrome-aws-lambda (esto reemplaza puppeteer)
+    const browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
     });
 
     const page = await browser.newPage();
