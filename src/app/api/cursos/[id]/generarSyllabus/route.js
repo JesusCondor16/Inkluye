@@ -1,10 +1,10 @@
-// src/app/api/cursos/[id]/generarSyllabus/route.js (o .ts si usas TypeScript)
+// src/app/api/cursos/[id]/generarSyllabus/route.js
 
 import { prisma } from '@/lib/prisma';
 import { renderSyllabusHTML } from './syllabusTemplate';
 import { translateCurso } from '@/lib/translateCurso';
 import { translations } from '@/lib/translations';
-import chromium from 'chrome-aws-lambda'; // CAMBIO
+import chromium from 'chrome-aws-lambda';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -52,15 +52,16 @@ export async function GET(req, context) {
 
     const html = renderSyllabusHTML(curso, t, lang);
 
-    // ✅ LAUNCH con chrome-aws-lambda (esto reemplaza puppeteer)
+    // Inicializa Puppeteer con chrome-aws-lambda
     const browser = await chromium.puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
+      executablePath: await chromium.executablePath || undefined,
       headless: chromium.headless,
     });
 
     const page = await browser.newPage();
+
     await page.setContent(html, {
       waitUntil: 'networkidle0',
       baseURL: 'http://localhost:3000',
@@ -117,3 +118,4 @@ export async function GET(req, context) {
     return new Response('Error interno generando PDF', { status: 500 });
   }
 }
+
