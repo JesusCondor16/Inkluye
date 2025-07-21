@@ -4,9 +4,12 @@ import { prisma } from '@/lib/prisma';
 import { renderSyllabusHTML } from './syllabusTemplate';
 import { translateCurso } from '@/lib/translateCurso';
 import { translations } from '@/lib/translations';
+
 import chromium from 'chrome-aws-lambda';
 import fs from 'fs/promises';
 import path from 'path';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req, context) {
   const { searchParams } = new URL(req.url);
@@ -52,7 +55,7 @@ export async function GET(req, context) {
 
     const html = renderSyllabusHTML(curso, t, lang);
 
-    // Inicializa Puppeteer con chrome-aws-lambda
+    // Inicializa Puppeteer con configuración compatible con Vercel (chrome-aws-lambda)
     const browser = await chromium.puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
@@ -118,4 +121,3 @@ export async function GET(req, context) {
     return new Response('Error interno generando PDF', { status: 500 });
   }
 }
-
